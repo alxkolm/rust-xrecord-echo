@@ -1,0 +1,12 @@
+[package]
+name = "rust-selftop-sql"
+version = "0.1.0"
+authors = ["Alexey Kolmakov <alxkolm@bk.ru>"]
+
+[dependencies]
+libc = "*"
+nanomsg = "^0.3.4"
+
+[dependencies.x11]
+git = "https://github.com/alxkolm/x11-rs.git"
+features = ["xlib", "xrecord"]
