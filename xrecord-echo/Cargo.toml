@@ -1,5 +1,5 @@
 [package]
-name = "rust-selftop-sql"
+name = "rust-selftop"
 version = "0.1.0"
 authors = ["Alexey Kolmakov <alxkolm@bk.ru>"]
 
