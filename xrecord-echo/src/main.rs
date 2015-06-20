@@ -223,7 +223,7 @@ fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<u
     };
 
     let message = format!(
-        "xrecord|{event_type}\n{time}\n{wm_name}\n{class}",
+        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}",
         event_type = event_type,
         time       = time,
         wm_name    = wm_name,
