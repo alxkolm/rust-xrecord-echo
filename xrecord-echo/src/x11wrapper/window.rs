@@ -81,7 +81,7 @@ impl Window {
         }
     }
     pub fn get_property(&self, property_name: &str, property_type: &str) -> Option<Vec<u8>>{
-        if self.id == 0 {
+        if self.id == 0 || self.id == 1 {
             return None;
         }
         unsafe {
@@ -95,7 +95,7 @@ impl Window {
             let mut prop_return         : *mut libc::c_uchar = mem::transmute(&mut tmp);
             let res = xlib::XGetWindowProperty(
                 self.display,
-                mem::transmute(self.id),
+                self.id as u64,
                 xa_property_name,
                 0,
                 4096 / 4,
