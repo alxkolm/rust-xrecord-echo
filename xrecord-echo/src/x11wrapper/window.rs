@@ -148,6 +148,9 @@ impl Window {
     }
     
     pub fn get_tree (&self) -> Option<WindowTree> {
+        if self.id == 0 || self.id == 1 {
+            return None;
+        }
         unsafe {
             let mut root: xlib::Window = 0;
             let mut parent: xlib::Window = 0;
@@ -156,7 +159,7 @@ impl Window {
 
             let res = xlib::XQueryTree(
                 self.display,
-                mem::transmute(self.id),
+                self.id as u64,
                 &mut root,
                 &mut parent,
                 &mut children,
