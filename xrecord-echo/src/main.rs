@@ -1,6 +1,7 @@
 extern crate libc;
 extern crate x11;
 extern crate nanomsg;
+extern crate time;
 
 
 use x11wrapper::{Display, Window, WindowTree};
@@ -25,6 +26,8 @@ struct ServiceData {
 }
 
 static mut event_count:u64 = 0;
+static mut start_local_time: i64 = 0;
+static mut start_server_time: i64 = 0;
 
 static mut display_control: Display = Display {display: 0 as *mut xlib::Display};
 static mut display_data: Display = Display {display: 0 as *mut xlib::Display};
@@ -112,7 +115,14 @@ unsafe extern "C" fn record_callback(pointer:*mut i8, raw_data: *mut xrecord::XR
         
     let data = &*raw_data;
     
-
+    match data.category {
+        xrecord::XRecordStartOfData => {
+            start_local_time = time::get_time().sec;
+            start_server_time = data.server_time as i64;
+        },
+        xrecord::XRecordFromServer => {},
+        _ => {}
+    }
     if data.category != xrecord::XRecordFromServer {
         return;
     }
@@ -205,7 +215,7 @@ fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<u
         UserEvent::ClickEvent{..}  => "ClickEvent".to_string() 
     };
 
-    let time = match event {
+    let server_time = match event {
         UserEvent::MotionEvent{time, ..} => time,
         UserEvent::EnterEvent{time, ..}  => time,
         UserEvent::KeyEvent{time, ..}    => time,
@@ -221,13 +231,18 @@ fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<u
         Some(classes) => classes[classes.len()-1].to_string(),
         _             => "".to_string()
     };
-
+    let mut timestamp:i64 = 0;
+    unsafe{
+        timestamp = start_local_time + ((((server_time as f64) - start_server_time as f64))/1000.0).floor() as i64;
+    }
+    
     let message = format!(
-        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}",
+        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}\n{timestamp}",
         event_type = event_type,
-        time       = time,
+        time       = server_time,
         wm_name    = wm_name,
-        class      = class
+        class      = class,
+        timestamp  = timestamp
     );
 
     socket.write(message.as_bytes())
