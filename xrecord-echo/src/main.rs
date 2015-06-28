@@ -27,7 +27,8 @@ struct XRecordDatum {
 }
 
 struct ServiceData {
-    socket: Socket
+    socket: Socket,
+    procs: HashMap<u32, String>
 }
 
 static mut event_count:u64 = 0;
@@ -37,13 +38,6 @@ static mut start_server_time: i64 = 0;
 static mut display_control: Display = Display {display: 0 as *mut xlib::Display};
 static mut display_data: Display = Display {display: 0 as *mut xlib::Display};
 
-// lazy_static! {
-//     static ref procs: HashMap<u32, String> = {
-//         let mut m = HashMap::new();
-//         m
-//     };
-// }
-
 fn main() {
     unsafe{
         record_bootstrap();
@@ -51,6 +45,8 @@ fn main() {
 }
 
 unsafe fn record_bootstrap () {
+    let procs: HashMap<u32, String> = HashMap::new();
+
     display_control = Display::new();
     display_data = Display::new();
 
@@ -106,7 +102,7 @@ unsafe fn record_bootstrap () {
     let mut socket = Socket::new(Protocol::Pub).unwrap();
     let endpoint = socket.bind("tcp://127.0.0.1:1234");
 
-    let mut service = ServiceData {socket: socket};
+    let mut service = ServiceData {socket: socket, procs: procs};
 
     // Run
     let res = xrecord::XRecordEnableContext(
@@ -159,7 +155,7 @@ unsafe extern "C" fn record_callback(pointer:*mut i8, raw_data: *mut xrecord::XR
 
     match event {
         Some(e) => {
-            send_event(window, e, &mut service.socket);
+            send_event(window, e, service);
             // (*sniffer).processEvent(window, e);
         },
         _ => {}
@@ -218,7 +214,10 @@ pub enum UserEvent {
     ClickEvent{buttoncode: u8, time: usize}
 }
 
-fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<usize, Error> {
+fn send_event(window: Window, event: UserEvent, service: &mut ServiceData) -> Result<usize, Error> {
+    let ref mut socket = service.socket;
+    let ref mut procs = service.procs;
+
     let event_type = match event {
         UserEvent::MotionEvent{..} => "MotionEvent".to_string(),
         UserEvent::EnterEvent{..}  => "EnterEvent".to_string(),
@@ -248,15 +247,15 @@ fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<u
         _             => 0
     };
 
-    // if !procs.contains_key(&pid) {
-    //     let name = match get_proc_name(pid) {
-    //         Some(name) =>  name,
-    //         _          => "".to_string()
-    //     };
-    //     procs.insert(pid.clone(), name.clone());
-    // };
+    if !procs.contains_key(&pid) {
+        let name = match get_proc_name(pid) {
+            Some(name) =>  name,
+            _          => "".to_string()
+        };
+        procs.insert(pid.clone(), name.clone());
+    };
 
-    let proc_name: String = match get_proc_name(pid) {
+    let proc_name: String = match procs.get(&pid) {
         Some(ref str) => {
             (*str).clone()
         },
@@ -283,8 +282,17 @@ fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<u
 }
 
 fn get_proc_name(pid: u32) -> Option<String> {
-    let mut f = File::open("/proc/".to_string() + &(pid.to_string()) + &("/comm".to_string())).unwrap();
-    let mut name = String::new();
-    f.read_to_string(&mut name);
-    Some(name)
+    if pid == 0 {
+        return None;
+    }
+
+    let mut f = File::open("/proc/".to_string() + &(pid.to_string()) + &("/comm".to_string()));
+    match f {
+        Ok(mut file) => {
+            let mut name = String::new();
+            file.read_to_string(&mut name);
+            Some(name)
+        },
+        _ => None
+    }
 }
