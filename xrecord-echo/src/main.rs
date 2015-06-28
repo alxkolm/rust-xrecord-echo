@@ -2,6 +2,8 @@ extern crate libc;
 extern crate x11;
 extern crate nanomsg;
 extern crate time;
+#[macro_use]
+extern crate lazy_static;
 
 
 use x11wrapper::{Display, Window, WindowTree};
@@ -11,6 +13,9 @@ use std::ffi::CString;
 use libc::{c_int};
 use nanomsg::{Socket, Protocol};
 use std::io::{Write, Error};
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::Read;
 
 mod x11wrapper;
 
@@ -32,6 +37,12 @@ static mut start_server_time: i64 = 0;
 static mut display_control: Display = Display {display: 0 as *mut xlib::Display};
 static mut display_data: Display = Display {display: 0 as *mut xlib::Display};
 
+// lazy_static! {
+//     static ref procs: HashMap<u32, String> = {
+//         let mut m = HashMap::new();
+//         m
+//     };
+// }
 
 fn main() {
     unsafe{
@@ -231,19 +242,49 @@ fn send_event(window: Window, event: UserEvent, socket: &mut Socket) -> Result<u
         Some(classes) => classes[classes.len()-1].to_string(),
         _             => "".to_string()
     };
+
+    let pid = match window.get_pid() {
+        Some(pid) => pid,
+        _             => 0
+    };
+
+    // if !procs.contains_key(&pid) {
+    //     let name = match get_proc_name(pid) {
+    //         Some(name) =>  name,
+    //         _          => "".to_string()
+    //     };
+    //     procs.insert(pid.clone(), name.clone());
+    // };
+
+    let proc_name: String = match get_proc_name(pid) {
+        Some(ref str) => {
+            (*str).clone()
+        },
+        _ => "".to_string()
+    };
+
     let mut timestamp:i64 = 0;
     unsafe{
         timestamp = start_local_time + ((((server_time as f64) - start_server_time as f64))/1000.0).floor() as i64;
     }
     
     let message = format!(
-        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}\n{timestamp}",
+        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}\n{timestamp}\n{pid}\n{proc_name}",
         event_type = event_type,
         time       = server_time,
         wm_name    = wm_name,
         class      = class,
-        timestamp  = timestamp
+        timestamp  = timestamp,
+        pid        = pid,
+        proc_name  = proc_name
     );
 
     socket.write(message.as_bytes())
+}
+
+fn get_proc_name(pid: u32) -> Option<String> {
+    let mut f = File::open("/proc/".to_string() + &(pid.to_string()) + &("/comm".to_string())).unwrap();
+    let mut name = String::new();
+    f.read_to_string(&mut name);
+    Some(name)
 }
