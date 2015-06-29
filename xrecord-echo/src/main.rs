@@ -314,7 +314,7 @@ fn get_proc_name(pid: u32) -> Option<Process> {
     };
 
     Some(Process {
-        name: name,
-        cmdline: cmd
+        name: name.trim().to_string(),
+        cmdline: cmd.trim().to_string()
     })
 }
