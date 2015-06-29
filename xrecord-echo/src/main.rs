@@ -28,7 +28,13 @@ struct XRecordDatum {
 
 struct ServiceData {
     socket: Socket,
-    procs: HashMap<u32, String>
+    procs: HashMap<u32, Process>
+}
+
+#[derive(Clone)]
+struct Process {
+    name: String,
+    cmdline: String
 }
 
 static mut event_count:u64 = 0;
@@ -45,7 +51,7 @@ fn main() {
 }
 
 unsafe fn record_bootstrap () {
-    let procs: HashMap<u32, String> = HashMap::new();
+    let procs: HashMap<u32, Process> = HashMap::new();
 
     display_control = Display::new();
     display_data = Display::new();
@@ -248,18 +254,18 @@ fn send_event(window: Window, event: UserEvent, service: &mut ServiceData) -> Re
     };
 
     if !procs.contains_key(&pid) {
-        let name = match get_proc_name(pid) {
-            Some(name) =>  name,
-            _          => "".to_string()
+        let process = match get_proc_name(pid) {
+            Some(p) =>  p,
+            _          => Process{name: "".to_string(), cmdline: "".to_string()}
         };
-        procs.insert(pid.clone(), name.clone());
+        procs.insert(pid.clone(), process.clone());
     };
 
-    let proc_name: String = match procs.get(&pid) {
-        Some(ref str) => {
-            (*str).clone()
+    let process: Process = match procs.get(&pid) {
+        Some(ref p) => {
+            (*p).clone()
         },
-        _ => "".to_string()
+        _ => Process{name: "".to_string(), cmdline: "".to_string()}
     };
 
     let mut timestamp:i64 = 0;
@@ -268,31 +274,47 @@ fn send_event(window: Window, event: UserEvent, service: &mut ServiceData) -> Re
     }
     
     let message = format!(
-        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}\n{timestamp}\n{pid}\n{proc_name}",
+        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}\n{timestamp}\n{pid}\n{proc_name}\n{proc_cmd}",
         event_type = event_type,
         time       = server_time,
         wm_name    = wm_name,
         class      = class,
         timestamp  = timestamp,
         pid        = pid,
-        proc_name  = proc_name
+        proc_name  = process.name,
+        proc_cmd   = process.cmdline
     );
 
     socket.write(message.as_bytes())
 }
 
-fn get_proc_name(pid: u32) -> Option<String> {
+fn get_proc_name(pid: u32) -> Option<Process> {
     if pid == 0 {
         return None;
     }
 
     let mut f = File::open("/proc/".to_string() + &(pid.to_string()) + &("/comm".to_string()));
-    match f {
+    let name = match f {
         Ok(mut file) => {
             let mut name = String::new();
             file.read_to_string(&mut name);
-            Some(name)
+            name
         },
-        _ => None
-    }
+        _ => "".to_string()
+    };
+
+    let mut f2 = File::open("/proc/".to_string() + &(pid.to_string()) + &("/cmdline".to_string()));
+    let cmd = match f2 {
+        Ok(mut file) => {
+            let mut name = String::new();
+            file.read_to_string(&mut name);
+            name
+        },
+        _ => "".to_string()
+    };
+
+    Some(Process {
+        name: name,
+        cmdline: cmd
+    })
 }
