@@ -152,8 +152,8 @@ unsafe extern "C" fn record_callback(pointer:*mut i8, raw_data: *mut xrecord::XR
      
     // Count events
     let event = match xdatum.xtype as i32 {
-        xlib::KeyPress     => Some(UserEvent::KeyEvent{time: data.server_time as usize, keycode: 1}),
-        xlib::ButtonPress  => Some(UserEvent::ClickEvent{time: data.server_time as usize, buttoncode: 1}),
+        xlib::KeyPress     => Some(UserEvent::KeyEvent{time: data.server_time as usize, keycode: xdatum.code, is_repeat: xdatum.unknown1 as usize}),
+        xlib::ButtonPress  => Some(UserEvent::ClickEvent{time: data.server_time as usize, buttoncode: xdatum.code}),
         xlib::MotionNotify => Some(UserEvent::MotionEvent{time: data.server_time as usize}),
         xlib::EnterNotify  => Some(UserEvent::EnterEvent{time: data.server_time as usize}),
         _                  => None
@@ -216,7 +216,7 @@ fn get_current_window() -> Window {
 pub enum UserEvent {
     MotionEvent{time: usize},
     EnterEvent{time: usize},
-    KeyEvent{keycode: u8, time: usize},
+    KeyEvent{keycode: u8, is_repeat: usize, time: usize},
     ClickEvent{buttoncode: u8, time: usize}
 }
 
