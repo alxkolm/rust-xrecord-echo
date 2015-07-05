@@ -2,6 +2,7 @@ extern crate libc;
 extern crate x11;
 extern crate nanomsg;
 extern crate time;
+extern crate rustc_serialize;
 #[macro_use]
 extern crate lazy_static;
 
@@ -35,6 +36,19 @@ struct ServiceData {
 struct Process {
     name: String,
     cmdline: String
+}
+
+#[derive(RustcEncodable)]
+struct Message {
+    event_type:   String,
+    xserver_time: i64,
+    timestamp:    i64,
+    wm_name:      String,
+    wm_class:     String,
+    pid:          i64,
+    proc_name:    String,
+    proc_cmd:     String,
+    code:         Option<u8>
 }
 
 static mut event_count:u64 = 0;
@@ -243,7 +257,7 @@ fn send_event(window: Window, event: UserEvent, service: &mut ServiceData) -> Re
         _           => "".to_string()
     };
 
-    let class = match window.get_class() {
+    let wm_class = match window.get_class() {
         Some(classes) => classes[classes.len()-1].to_string(),
         _             => "".to_string()
     };
@@ -268,24 +282,30 @@ fn send_event(window: Window, event: UserEvent, service: &mut ServiceData) -> Re
         _ => Process{name: "".to_string(), cmdline: "".to_string()}
     };
 
+    let code = match event {
+        UserEvent::KeyEvent {keycode: keycode, is_repeat: is_repeat, ..} => Some(keycode),
+        UserEvent::ClickEvent {buttoncode: buttoncode, ..} => Some(buttoncode),
+        _ => None
+    };
+
     let mut timestamp:i64 = 0;
     unsafe{
         timestamp = start_local_time + ((((server_time as f64) - start_server_time as f64))/1000.0).floor() as i64;
     }
     
-    let message = format!(
-        "xrecord\n{event_type}\n{time}\n{wm_name}\n{class}\n{timestamp}\n{pid}\n{proc_name}\n{proc_cmd}",
-        event_type = event_type,
-        time       = server_time,
-        wm_name    = wm_name,
-        class      = class,
-        timestamp  = timestamp,
-        pid        = pid,
-        proc_name  = process.name,
-        proc_cmd   = process.cmdline
-    );
+    let message = Message {
+        event_type:  event_type,
+        xserver_time: server_time  as i64,
+        timestamp:   timestamp,
+        wm_name:     wm_name,
+        wm_class:    wm_class,
+        pid:         pid as i64,
+        proc_name:   process.name,
+        proc_cmd:    process.cmdline,
+        code:        code
+    };
 
-    socket.write(message.as_bytes())
+    socket.write(("xrecord\n".to_string() + &rustc_serialize::json::encode(&message).unwrap()).as_bytes())
 }
 
 fn get_proc_name(pid: u32) -> Option<Process> {

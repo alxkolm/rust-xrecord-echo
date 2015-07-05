@@ -8,6 +8,7 @@ libc = "*"
 nanomsg = "^0.3.4"
 time = "0.1"
 lazy_static = "0.1.*"
+rustc-serialize = "0.3"
 
 [dependencies.x11]
 git = "https://github.com/alxkolm/x11-rs.git"
