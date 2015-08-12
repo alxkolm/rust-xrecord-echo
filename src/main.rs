@@ -116,9 +116,6 @@ unsafe fn record_bootstrap () {
         panic!("Fail create Record context\n");
     }
 
-    // let mut windowSniffer = WindowSniffer::new();
-    
-
     let mut socket = Socket::new(Protocol::Pub).unwrap();
     let endpoint = socket.bind("tcp://127.0.0.1:1234");
 
@@ -159,10 +156,6 @@ unsafe extern "C" fn record_callback(pointer:*mut i8, raw_data: *mut xrecord::XR
     // Detect wm_name
     
     let window = get_current_window();
-    // (*sniffer).processEvent(window);
-    // if window.is_none() {
-    //  return;
-    // }
      
     // Count events
     let event = match xdatum.xtype as i32 {
@@ -219,11 +212,6 @@ fn get_current_window() -> Window {
         i += 1;
     }
     current_window
-    // selftop::Window {
-    //     wm_name: current_window.get_wm_name(),
-    //     class: current_window.get_class(),
-    //     pid: current_window.get_pid(),
-    // }
 }
 
 
