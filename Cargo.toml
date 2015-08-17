@@ -1,6 +1,6 @@
 [package]
-name = "rust-selftop"
-version = "0.1.0"
+name = "xrecord-echo"
+version = "0.1.1"
 authors = ["Alexey Kolmakov <alxkolm@bk.ru>"]
 
 [dependencies]
