@@ -1,0 +1,6 @@
+#!/bin/bash
+
+until target/debug/xrecord-echo; do
+    echo "xrecord-echo crashed with code $?.  Respawning.." >&2
+    sleep 1
+done
