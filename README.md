@@ -4,15 +4,15 @@ Event message contains info about window and process where it triggered. Message
 
 ```json
 {
-  "event_type": "KeyEvent",
-  "xserver_time": 12255472,
-  "timestamp": 1441459157,
-  "wm_name": "alxkolm/rust-xrecord-echo - Google Chrome",
-  "wm_class": "Google-chrome-stable",
-  "pid": 5077,
-  "proc_name": "chrome",
-  "proc_cmd": "/opt/google/chrome/chrome",
-  "code": 11
+  "event_type": "KeyEvent",
+  "xserver_time": 12255472,
+  "timestamp": 1441459157,
+  "wm_name": "alxkolm/rust-xrecord-echo - Google Chrome",
+  "wm_class": "Google-chrome-stable",
+  "pid": 5077,
+  "proc_name": "chrome",
+  "proc_cmd": "/opt/google/chrome/chrome",
+  "code": 11
 }
 ```
 
