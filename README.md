@@ -35,7 +35,13 @@ To just build *xrecord-echo* use *cargo*:
 
 To run *xrecord-echo* use `start` script. It automaticaly respawn process when it crush.
 
-But I recommend use supervisor like [*runit*](http://smarden.org/runit/) to manage process (run on system startup and restart on crash)
+But I recommend use supervisor like [*runit*](http://smarden.org/runit/) to manage process (run on system startup and restart on crash).
+
+*xrecord-echo* emit messages as publisher on port 1234.
+
+To check that this work use nanomsg tools to subscribe and output to terminal:
+    
+    nn_sub -l1234 -A
 
 ## Todo
 
