@@ -2,7 +2,7 @@ all: deps
 	cargo build --release
 	make clean
 
-deps: rust nanomsg
+deps: rust nanomsg libxtst
 
 rust:
 	curl -sSf https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly
@@ -13,6 +13,8 @@ nanomsg:
 	cd nanomsg-0.6-beta && ./configure && make && sudo make install
 	sudo ldconfig
 
+libxtst:
+	apt-get install libxtst-dev
 
 clean:
 	rm -rf nanomsg-0.6-beta
