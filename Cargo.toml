@@ -4,7 +4,7 @@ version = "0.1.1"
 authors = ["Alexey Kolmakov <alxkolm@bk.ru>"]
 
 [dependencies]
-libc = "*"
+libc = "0.2.2"
 nanomsg = "^0.4.0"
 time = "0.1"
 lazy_static = "0.1.*"

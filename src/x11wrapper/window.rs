@@ -120,7 +120,7 @@ impl Window {
                 copy_data.push(*b);
             }
             
-            x11::xlib::XFree(prop_return as *mut libc::types::common::c95::c_void);
+            x11::xlib::XFree(prop_return as *mut libc::c_void);
             
             Some(copy_data)
         }
