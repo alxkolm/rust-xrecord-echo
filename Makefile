@@ -2,7 +2,7 @@ all: deps
 	cargo build --release
 	make clean
 
-deps: rust nanomsg libxtst
+deps: libxtst rust nanomsg
 
 rust:
 	curl -sSf https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly
