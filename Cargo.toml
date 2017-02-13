@@ -5,7 +5,7 @@ authors = ["Alexey Kolmakov <alxkolm@bk.ru>"]
 
 [dependencies]
 libc = "0.2.2"
-nanomsg = "^0.4.0"
+nanomsg = "^0.6.1"
 time = "0.1"
 lazy_static = "0.1.*"
 rustc-serialize = "0.3"

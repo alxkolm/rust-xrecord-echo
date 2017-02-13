@@ -2,22 +2,27 @@ all: deps
 	cargo build --release
 	make clean
 
-deps: libxtst rust nanomsg
+deps: osdeps rust nanomsg
 
 rust:
 	curl -sSf https://static.rust-lang.org/rustup.sh | sh -s -- --channel=nightly
 
 nanomsg:
-	wget https://github.com/nanomsg/nanomsg/releases/download/0.6-beta/nanomsg-0.6-beta.tar.gz
-	tar -xvzf nanomsg-0.6-beta.tar.gz
-	cd nanomsg-0.6-beta && ./configure && make && sudo make install
+	wget https://github.com/nanomsg/nanomsg/archive/1.0.0.tar.gz
+	tar -xvzf 1.0.0.tar.gz
+	cd nanomsg-1.0.0 \
+		&& mkdir build \
+		&& cd build \
+		&& cmake .. \
+		&& cmake --build . \
+		&& sudo cmake --build . --target install
 	sudo ldconfig
 
-libxtst:
-	apt-get install libxtst-dev
+osdeps:
+	apt-get install libxtst-dev curl pkg-config
 
 clean:
-	rm -rf nanomsg-0.6-beta
-	rm nanomsg-0.6-beta.tar.gz
+	rm -rf nanomsg-1.0.0
+	rm 1.0.0.tar.gz
 
 .PHONY: clean deps rust nanomsg
