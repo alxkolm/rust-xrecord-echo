@@ -43,6 +43,12 @@ To check that this work use nanomsg tools to subscribe and output to terminal:
     
     nn_sub -l1234 -A
 
+## Setup systemd
+
+  cp xrecord-echo.service ~/.config/systemd/user
+  systemctl --user enable xrecord-echo.service
+  systemctl --user start xrecord-echo.service
+
 ## Todo
 
 - [ ] Customize *nanomsg* port by command line parameters
