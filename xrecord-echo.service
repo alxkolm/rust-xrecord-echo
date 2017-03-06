@@ -1,0 +1,16 @@
+[Unit]
+Description=XRecord Echo Service
+Wants=graphical.target
+#Requires=graphical.target
+After=default.target
+
+[Service]
+Environment=DISPLAY=:0.0
+Environment=XAUTHORITY=/home/alx/.Xauthority
+Type=simple
+ExecStart=/home/alx/soft/rust-xrecord-echo/target/release/xrecord-echo
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
