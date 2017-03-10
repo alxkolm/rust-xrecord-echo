@@ -27,6 +27,9 @@ To install all of prerequisites and build *xrecord-echo* run:
 
     make
 
+    # Install for systemd based linux distributions (ex. Ubuntu)
+    make install
+
 To just build *xrecord-echo* use *cargo*:
     
     cargo build --release
