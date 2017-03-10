@@ -19,10 +19,17 @@ nanomsg:
 	sudo ldconfig
 
 osdeps:
-	apt-get install libxtst-dev curl pkg-config
+	sudo apt-get install libxtst-dev curl pkg-config
 
 clean:
 	rm -rf nanomsg-1.0.0
 	rm 1.0.0.tar.gz
+
+install:
+	sudo cp target/release/xrecord-echo /usr/local/bin
+	mkdir ~/.config/systemd/user --parents --verbose
+	cp xrecord-echo.service ~/.config/systemd/user
+	systemctl --user enable xrecord-echo.service
+	systemctl --user start xrecord-echo.service
 
 .PHONY: clean deps rust nanomsg
