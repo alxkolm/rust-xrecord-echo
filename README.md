@@ -48,9 +48,9 @@ To check that this work use nanomsg tools to subscribe and output to terminal:
 
 ## Setup systemd
 
-  cp xrecord-echo.service ~/.config/systemd/user
-  systemctl --user enable xrecord-echo.service
-  systemctl --user start xrecord-echo.service
+    cp xrecord-echo.service ~/.config/systemd/user
+    systemctl --user enable xrecord-echo.service
+    systemctl --user start xrecord-echo.service
 
 ## Todo
 
