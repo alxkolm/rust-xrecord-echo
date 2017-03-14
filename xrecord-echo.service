@@ -8,7 +8,7 @@ After=default.target
 Environment=DISPLAY=:0.0
 Environment=XAUTHORITY=/home/alx/.Xauthority
 Type=simple
-ExecStart=/home/alx/soft/rust-xrecord-echo/target/release/xrecord-echo
+ExecStart=xrecord-echo
 Restart=always
 RestartSec=5
 
