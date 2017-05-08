@@ -8,6 +8,7 @@ After=default.target
 Environment=DISPLAY=:0.0
 Environment=XAUTHORITY=/home/alx/.Xauthority
 Type=simple
+ExecStartPre=/etc/X11/xinit/xinit.d/50-systemd-user.sh
 ExecStart=xrecord-echo
 Restart=always
 RestartSec=5
