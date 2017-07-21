@@ -28,7 +28,7 @@ clean:
 install:
 	sudo cp target/release/xrecord-echo /usr/local/bin
 	mkdir ~/.config/systemd/user --parents --verbose
-	cp xrecord-echo.service ~/.config/systemd/user
+	cp --verbose xrecord-echo.service ~/.config/systemd/user
 	systemctl --user enable xrecord-echo.service
 	systemctl --user start xrecord-echo.service
 
