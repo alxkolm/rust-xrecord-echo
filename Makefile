@@ -19,7 +19,7 @@ nanomsg:
 	sudo ldconfig
 
 osdeps:
-	sudo apt-get install libxtst-dev curl pkg-config
+	sudo apt-get install -y libxtst-dev curl pkg-config cmake
 
 clean:
 	rm -rf nanomsg-1.0.0
