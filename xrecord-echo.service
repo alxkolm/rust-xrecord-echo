@@ -7,7 +7,7 @@ After=default.target
 [Service]
 Type=simple
 ExecStartPre=/etc/X11/xinit/xinit.d/50-systemd-user.sh
-ExecStart=xrecord-echo
+ExecStart=/usr/local/bin/xrecord-echo
 Restart=always
 RestartSec=5
 
