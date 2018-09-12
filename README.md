@@ -44,7 +44,7 @@ But I recommend use supervisor like [*runit*](http://smarden.org/runit/) to mana
 
 To check that this work use nanomsg tools to subscribe and output to terminal:
     
-    nn_sub -l1234 -A
+    nanocat --sub -l1234 -A
 
 ## Setup systemd
 
